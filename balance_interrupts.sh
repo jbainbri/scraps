@@ -4,6 +4,7 @@
 # Probably not sufficient for all purposes, but provides an example and a base to build off.
 #
 # (C) 2014 Red Hat, Inc.
+# License: Creative Commons Zero
 #
 CMD=echo  ## change this to eval for real
 CORES=$(egrep -c "^processor" /proc/cpuinfo); echo "CORES=$CORES";
