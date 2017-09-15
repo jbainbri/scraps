@@ -1,53 +1,34 @@
 #!/bin/bash
 #
 # A bash script to balance interrupts on processors.
-# Allows specifying a number of cores to use, the first core, and whether to interleave cores
+# Allows specifying first/last core/IRQ for balancing specific devices into
+# specific places on dual NUMA and interleave dual NUMA systems.
 #
 # (C) 2017 Red Hat, Inc.
 # License: Creative Commons Zero
-#
-# Examples:
-#
-# 22 cores, IRQ 150 to 172, Interleave NUMA, start on core 0
-# script.sh 22 150 172 1 0
-#
-# 22 cores, IRQ 150 to 172, Interleave NUMA, start on core 1
-# script.sh 22 150 172 1 1
 
 if [[ $# != 5 ]]; then
-    echo "Usage: $0 [cores] [first IRQ] [last IRQ] [interleave 0|1] [first core 0|1]"
+    echo "Usage: $0 [first core] [last core] [first IRQ] [last IRQ] [step]"
     exit 1;
 fi
 
-CMD=echo  ## change this to eval for real
-CORES=$1
-IRQA=$2
-IRQB=$3
-INTR=$4
-FIRST=$5
-STEP=1
+CMD=echo  ## change this to "eval" to run for real, or just copypaste the output
+C_FIRST=$1
+C_LAST=$2
+I_FIRST=$3
+I_LAST=$4
+STEP=$5
 
-echo "CPU Cores=$CORES"
-echo "First Core=$FIRST"
-echo "First IRQ=$IRQA"
-echo "Last IRQ=$IRQB"
+echo "CPUs: $C_FIRST to $C_LAST"
+echo "IRQs: $I_FIRST to $I_LAST"
+echo "Step: $STEP"
 
-if [[ $INTR == 1 ]]; then
-    let STEP+=1
-    IMSG="Using" 
-else
-    IMSG="Not using"
-fi
+let CPU=C_FIRST
 
-echo "$IMSG interleave, STEP=$STEP"
-
-let CPU=FIRST
-
-for IRQ in $(seq $IRQA $IRQB);do
+for IRQ in $(seq $I_FIRST $I_LAST);do
     $CMD "echo $(($CPU)) > /proc/irq/$IRQ/smp_affinity_list";
     let CPU+=STEP
-    if (( CPU > CORES )); then
-        let CPU=-1
-        let CPU+=STEP
+    if (( CPU > C_LAST )); then
+        let CPU=C_FIRST
     fi
 done
