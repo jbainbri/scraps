@@ -12,7 +12,7 @@ if [[ $# != 5 ]]; then
     exit 1;
 fi
 
-CMD=echo  ## change this to "eval" to run for real, or just copypaste the output
+CMD="echo"  ## change this to "eval" to run for real, or just copypaste the output
 C_FIRST=$1
 C_LAST=$2
 I_FIRST=$3
@@ -23,12 +23,12 @@ echo "CPUs: $C_FIRST to $C_LAST"
 echo "IRQs: $I_FIRST to $I_LAST"
 echo "Step: $STEP"
 
-let CPU=C_FIRST
+(( CPU=C_FIRST ))
 
-for IRQ in $(seq $I_FIRST $I_LAST);do
-    $CMD "echo $(($CPU)) > /proc/irq/$IRQ/smp_affinity_list";
-    let CPU+=STEP
+for IRQ in $(seq "$I_FIRST" "$I_LAST");do
+    $CMD "echo $CPU > /proc/irq/$IRQ/smp_affinity_list";
+    (( CPU+=STEP ))
     if (( CPU > C_LAST )); then
-        let CPU=C_FIRST
+        (( CPU=C_FIRST ))
     fi
 done
